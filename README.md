@@ -2,7 +2,7 @@
 
 Using the app 
 
-API to help to calculate the dates on which they should pay salary and bonus their sales staff.
+API to help to calculate the dates on which they should pay salary and bonus their staff.
 
 1. Run command npm install
 2. npm run dev
