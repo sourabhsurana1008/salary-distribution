@@ -1,0 +1,91 @@
+import { Request, Response } from "express";
+import * as Helper from '../helpers/helper';
+
+export class salaryController {
+    public async getReport(req:Request, res:Response) {
+    const listOfMonth = (getNext12Month(req.params.date));
+    const bonusDate = Helper.addMonths(new Date(req.params.date),1);
+    let formatedBonusDate = bonusDate.toISOString().split('T')[0];
+    const listOfbonusMonth = getNext12Month(formatedBonusDate);
+    
+   
+    await Helper.createXlsx([getSalaryDay(listOfMonth),getBonusDay(listOfbonusMonth)]).then((response:any) =>{
+        
+        res.download(response.filename, 'report.xlsx', function(err){
+            if(err) {
+                console.log(err);
+            }
+        })
+    })
+    }
+}
+
+function getBonusDay(listOfMonth:any){ 
+        
+let bonusDate:any = [];
+listOfMonth.forEach((element:any) => {
+    var date = new Date(Date.UTC(element.year, element.month, 15));
+    const d = new Date(new Date(date));
+    let day = d.getDay();
+
+    if(day !==  0 && day !== 6) {
+       // console.log(d);
+       bonusDate.push({date:d, day:Helper.getDayName(day), reason:"No change"})
+    } else if(day === 0) {
+        d.setDate(d.getDate() + 3);
+        bonusDate.push({date:d, day:Helper.getDayName(day), reason:"Weekend is there so shifted next wednesday"})
+    } else {
+        d.setDate(d.getDate() + 4);
+        bonusDate.push({date:d, day:Helper.getDayName(day), reason:"Weekend is there so shifted next wednesday"})
+    }
+});
+return bonusDate;
+}
+
+function getSalaryDay(listOfMonth:any){
+let response:any = [];
+
+listOfMonth.forEach((val:any) =>{
+    var date = new Date(Date.UTC(val.year, val.month, 28));
+    var days = [];
+    while (date.getUTCMonth() === val.month) {
+      const d = new Date(new Date(date));
+      let day = d.getDay();
+      days.push({date:new Date(date), day:day });
+      date.setUTCDate(date.getUTCDate() + 1);
+    }
+    let obj = days.reverse();
+    let result = obj.filter(fal=>{
+        if(fal.day <=5 && fal.day >=1 ) {
+            return fal
+        }
+    })
+    response.push(result[0])
+})
+return response;
+
+}
+
+function getNext12Month(inputDate:any) {
+var now = new Date(inputDate);
+var month = now.getMonth();
+var year = now.getFullYear();
+var names = ['January', 'February', 'March', 'April', 'May', 'June',
+             'July', 'August', 'September', 'October', 'November', 'December'];
+var res = [];
+for (var i = 0; i < 13; ++i) {
+    res.push({
+        month:month, 
+        year:year
+    })
+if (++month === 12) {
+    month = 0;
+    ++year;
+}
+}
+return res;
+}
+
+
+
+
