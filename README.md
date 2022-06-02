@@ -1,7 +1,9 @@
 # salary-distribution
 
-Using the app 10 
+Using the app 
+
+API to help to calculate the dates on which they should pay salary and bonus their staff.
 
 1. Run command npm install
 2. npm run dev
-3. access - http://localhost:3000/api/report/pass date (Example - 2021-08-24)
+3. access - http://localhost:{port}/api/report/date (Example - 2021-08-24)
